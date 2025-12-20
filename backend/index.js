@@ -35,7 +35,7 @@ const io = new Server(server, {
 app.set('io', io);
 
 // Middleware
-app.use(cors({ origin: process.env.FRONTEND_URI || 'https://qrbit-30.vercel.app', methods: ['GET', 'POST'] }));
+app.use(cors({ origin: process.env.FRONTEND_URI || 'https://qrbit-frontend.vercel.app/', methods: ['GET', 'POST'] }));
 app.use(express.json());
 
 // Routes
