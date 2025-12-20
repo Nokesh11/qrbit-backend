@@ -8,7 +8,7 @@ const Class = require('../models/Class');
 const { getRecentTokens } = require('../utils/redisHelpers');
 const { isPointInPolygon } = require('../utils/helpers');
 const { redisClient } = require('../config/redis');
-const { FRONTEND_URI } = require('../../.env');
+const FRONTEND_URI = process.env.FRONTEND_URI;
 
 const client = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
