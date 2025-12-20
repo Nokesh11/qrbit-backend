@@ -2,6 +2,7 @@ const QRCode = require('qrcode');
 const Session = require('../models/Session');
 const ScannedToken = require('../models/ScannedToken');
 const { getRecentTokens } = require('../utils/redisHelpers');
+const BACKEND_URI = process.env.BACKEND_URI || 'https://qrbit-backend.onrender.com';
 
 const generateQR = async (req, res) => {
   const { sessionId } = req.query;
@@ -9,7 +10,7 @@ const generateQR = async (req, res) => {
     const session = await Session.findOne({ sessionId });
     if (!session) return res.status(400).json({ error: 'Invalid or inactive session' });
     const { classId, qrToken } = session;
-    const qrData = `https://qr-backend-3-0.onrender.com/auth/google?sessionId=${sessionId}&classId=${classId}&token=${qrToken}&startTime=${Date.now()}`;
+    const qrData = `${BACKEND_URI}/auth/google?sessionId=${sessionId}&classId=${classId}&token=${qrToken}&startTime=${Date.now()}`;
     const qrCode = await QRCode.toDataURL(qrData);
     res.json({ qrCode, qrUrl: qrData, sessionId, classId, qrToken });
   } catch (err) {
