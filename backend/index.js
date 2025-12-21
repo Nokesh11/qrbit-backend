@@ -19,10 +19,26 @@ dotenv.config();
 connectRedis();
 connectDB();
 
+const allowedOrigins = [
+  "https://qrbit-frontend.vercel.app",
+  process.env.FRONTEND_URI
+].filter(Boolean);
+
+const vercelPreviewRegex = /^https:\/\/qrbit-frontend-.*\.vercel\.app$/;
+
+const corsOrigin = (origin, callback) => {
+  if (!origin) return callback(null, true);
+  if (allowedOrigins.includes(origin) || vercelPreviewRegex.test(origin)) {
+    callback(null, true);
+  } else {
+    callback(new Error('Not allowed by CORS'));
+  }
+};
+
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { 
-  cors: { origin: process.env.FRONTEND_URI || 'https://qrbit-30.vercel.app', methods: ['GET', 'POST'] },
+  cors: { origin: corsOrigin, methods: ['GET', 'POST'] },
   pingTimeout: 1000, 
   pingInterval: 5000,
   maxHttpBufferSize: 1e6,
@@ -35,7 +51,11 @@ const io = new Server(server, {
 app.set('io', io);
 
 // Middleware
-app.use(cors({ origin: process.env.FRONTEND_URI || 'https://qrbit-frontend.vercel.app/', methods: ['GET', 'POST'] }));
+app.use(cors({ 
+  origin: corsOrigin, 
+  credentials: true, 
+  methods: ['GET', 'POST', 'PUT', 'DELETE'] 
+}));
 app.use(express.json());
 
 // Routes
