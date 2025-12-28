@@ -45,17 +45,22 @@ const googleAuth = async (req, res) => {
       return res.redirect(`${FRONTEND_URI}/student?error=${encodeURIComponent('Invalid or expired QR code')}`);
     }
 
+    /*
     const lat = parseFloat(req.query.lat);
     const lng = parseFloat(req.query.lng);
     if (isNaN(lat) || isNaN(lng)) {
       console.log('Rejected: Location required', { sessionId });
       return res.redirect(`${FRONTEND_URI}/student?error=${encodeURIComponent('Location access required')}`);
     }
+    */
+    const lat = null;
+    const lng = null;
 
     const classDoc = await Class.findOne({ classId });
     if (!classDoc) {
       return res.redirect(`${FRONTEND_URI}/student?error=${encodeURIComponent('Class not found')}`);
     }
+    /*
     if (!classDoc.geoFence || classDoc.geoFence.length !== 4) {
       console.log('Rejected: Geo-fence not configured', { classId });
       return res.redirect(`${FRONTEND_URI}/student?error=${encodeURIComponent('Classroom geo-fence not configured')}`);
@@ -68,6 +73,7 @@ const googleAuth = async (req, res) => {
       return res.redirect(`${FRONTEND_URI}/student?error=${encodeURIComponent('Not within classroom boundaries')}`);
     }
     console.log('Geo-fence validated for:', { lat, lng });
+    */
 
     // Store scanned token with 30-second expiration
     const expiresAt = new Date(Date.now() + 30000);
