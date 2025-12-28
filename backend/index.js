@@ -21,24 +21,42 @@ connectDB();
 
 const allowedOrigins = [
   "https://qrbit-frontend.vercel.app",
+  "https://qrbit-30.vercel.app",
+  /^https:\/\/qrbit-frontend-.*\.vercel\.app$/,
   process.env.FRONTEND_URI
 ].filter(Boolean);
 
-const vercelPreviewRegex = /^https:\/\/qrbit-frontend-.*\.vercel\.app$/;
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    
+    // Check if origin matches any allowed string or regex
+    const isAllowed = allowedOrigins.some(allowed => {
+      if (allowed instanceof RegExp) {
+        return allowed.test(origin);
+      }
+      return allowed === origin;
+    });
 
-const corsOrigin = (origin, callback) => {
-  if (!origin) return callback(null, true);
-  if (allowedOrigins.includes(origin) || vercelPreviewRegex.test(origin)) {
-    callback(null, true);
-  } else {
-    callback(new Error('Not allowed by CORS'));
-  }
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      console.log(`CORS blocked origin: ${origin}`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 };
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { 
-  cors: { origin: corsOrigin, methods: ['GET', 'POST'] },
+  cors: { 
+    origin: allowedOrigins,
+    methods: ['GET', 'POST'],
+    credentials: true
+  },
   pingTimeout: 1000, 
   pingInterval: 5000,
   maxHttpBufferSize: 1e6,
@@ -51,11 +69,8 @@ const io = new Server(server, {
 app.set('io', io);
 
 // Middleware
-app.use(cors({ 
-  origin: corsOrigin, 
-  credentials: true, 
-  methods: ['GET', 'POST', 'PUT', 'DELETE'] 
-}));
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // Enable pre-flight for all routes
 app.use(express.json());
 
 // Routes
